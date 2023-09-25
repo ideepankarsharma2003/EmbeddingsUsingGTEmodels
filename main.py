@@ -114,7 +114,7 @@ def generate_bge_large_embeddings(text):
 
 
 
-def generate_cosine_similarity(e1, e2):
+def generate_cosine_similarity(e1, e2,precision:int=None):
     """
     Generate cosine similarity for the given embeddings.
     """
@@ -126,7 +126,11 @@ def generate_cosine_similarity(e1, e2):
     # embeddings= model_bge_large.encode(text, convert_to_tensor=True)
     # # return util.cos_sim(embeddings[0], embeddings[1])
     # return embeddings.cpu().numpy()
+    if(precision > 0):
+        return np.round(util.cos_sim(e1,e2).cpu().numpy().tolist(),precision).tolist()
+    
     return util.cos_sim(e1, e2)
+
    
    
    
