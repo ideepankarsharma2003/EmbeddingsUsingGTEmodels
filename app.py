@@ -6,6 +6,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import Response, JSONResponse
 from starlette.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from Utils.get_categories import get_top_labels, get_top_labels_bulk
+
 from main import (
     generate_base_embeddings, 
     generate_large_embeddings, 
@@ -16,6 +18,14 @@ from main import (
     generate_cosine_similarity
     )
 import json
+from pydantic import BaseModel
+
+class Keyword(BaseModel):
+    keyword: str 
+
+class Keyword_bulk(BaseModel):
+    keyword: list
+
 
 
 
@@ -252,6 +262,44 @@ async def large(text):
 #         }, media_type='application/json')
 #     except Exception as e:
 #         return Response(f'Error occured: {e}')
+
+
+    
+@app.post('/get_category')
+async def get_category(text:Keyword):
+    
+    try: 
+        # text= str_2_list_of_str(text)
+        text= text.keyword
+        
+        category= get_top_labels(text)
+
+        # return (embeddings[0][0].item())
+        # return category
+        return JSONResponse({
+            "categories": (category)
+        }, media_type='application/json')
+    except Exception as e:
+        return Response(f'Error occured: {e}')
+    
+    
+@app.post('/get_category_bulk')
+async def get_category_bulk(text:Keyword_bulk):
+    
+    try: 
+        # text= str_2_list_of_str(text)
+        text= text.keyword
+        print(text)
+        
+        category= get_top_labels_bulk(text)
+        print(category)
+
+        # return (embeddings[0][0].item())
+        return category
+        # return JSONResponse(
+        #                     category, media_type='application/json')
+    except Exception as e:
+        return Response(f'Error occured: {e}')
 
 
 

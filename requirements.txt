@@ -108,3 +108,5 @@ urllib3==2.0.4
 uvicorn==0.23.2
 wasabi==1.1.2
 wcwidth==0.2.6
+transformers
+numpy
