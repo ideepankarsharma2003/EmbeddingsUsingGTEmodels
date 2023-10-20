@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import Response, JSONResponse
 from starlette.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-from Utils.get_categories import get_top_labels, get_top_labels_bulk
+from Utils.get_categories import get_top_labels, get_top_labels_bulk_v2
 
 from main import (
     generate_base_embeddings, 
@@ -56,7 +56,6 @@ async def base(text: dict):
     try: 
         text= text.get("text")
         # print(type(text))
-        print(text)
         
         # text= str_2_list_of_str(text)
         # text= text.split(',')
@@ -70,6 +69,8 @@ async def base(text: dict):
         
         # print(f"n_urls: {len(text)}")
         
+        text= text+' '+ get_top_labels(text)
+        print(text)
         
         embeddings= generate_base_embeddings(text)
         # embeddings= embeddings.reshape(1, -1)
@@ -93,6 +94,10 @@ async def base(text: dict):
 async def bulk_base(text:dict):
     try:
         text_list = text.get('text')
+        
+        text_list= get_top_labels_bulk_v2(text_list)
+
+        print(text)
         print(text_list)
         embeddings = generate_base_embeddings(text_list)
         print("Bulk embeddings: ",embeddings.shape)
@@ -110,7 +115,12 @@ async def bulk_base(text:dict):
 async def get_similarity_against(text:dict):
     try:
         main_entity = text.get("main_entity")
+        main_entity=get_top_labels(main_entity)+ ' '+ main_entity
+        print(f'main_entity: {main_entity}')
+        
         compare_with_entitites = text.get("compare_with") # list of strings
+        # compare_with_entitites= get_top_labels_bulk_v2(compare_with_entitites)
+        print(f'compare_with_entitites: {compare_with_entitites}')
         
         main_entity_embedding = generate_base_embeddings(main_entity)
         to_compare_entitites_embedding = generate_base_embeddings(compare_with_entitites)
@@ -156,25 +166,25 @@ async def get_similarity_against(text:dict):
     
 
     
-@app.post('/large')
-async def large(text:dict):
+# @app.post('/large')
+# async def large(text:dict):
     
-    try: 
-        # text= str_2_list_of_str(text)
-        text= text.get("text")
+#     try: 
+#         # text= str_2_list_of_str(text)
+#         text= text.get("text")
         
-        embeddings= generate_large_embeddings(text)
-        # embeddings= embeddings.reshape(1, -1)
+#         embeddings= generate_large_embeddings(text)
+#         # embeddings= embeddings.reshape(1, -1)
         
-        print(f"n_urls: {len(text)}")
-        print(f"embeddings: {embeddings.shape}")
+#         print(f"n_urls: {len(text)}")
+#         print(f"embeddings: {embeddings.shape}")
 
-        # return (embeddings[0][0].item())
-        return JSONResponse({
-            "embeddings": embeddings.tolist()
-        }, media_type='application/json')
-    except Exception as e:
-        return Response(f'Error occured: {e}')
+#         # return (embeddings[0][0].item())
+#         return JSONResponse({
+#             "embeddings": embeddings.tolist()
+#         }, media_type='application/json')
+#     except Exception as e:
+#         return Response(f'Error occured: {e}')
 
 
 
@@ -291,7 +301,7 @@ async def get_category_bulk(text:Keyword_bulk):
         text= text.keyword
         print(text)
         
-        category= get_top_labels_bulk(text)
+        category= get_top_labels_bulk_v2(text)
         print(category)
 
         # return (embeddings[0][0].item())

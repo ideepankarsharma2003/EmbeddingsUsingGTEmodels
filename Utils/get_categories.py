@@ -89,39 +89,59 @@ def get_top_labels(keyword: str):
     # get probabilities using softmax from logit score and convert it to numpy array
     # probabilities_scores = F.softmax(logits, dim = -1).numpy()[0]
     individual_probabilities_scores = logit2prob(logits.numpy()[0])
-    '''
-    score_list= []
     
-    for i in range(27):
-        score= individual_probabilities_scores[i]
-        if score>=0.1: 
-            score_list.append(
-                    (id2label[i], str(score))
-                )
-        # if score>=0.5: 
-        #     score_list.append(
-        #         (id2label[i], score)
-        #     )
+    # score_list= []
+    
+    # for i in range(27):
+    #     score= individual_probabilities_scores[i]
+    #     if score>=0.8: 
+    #         score_list.append(
+    #                 (id2label[i], str(score))
+    #             )
+    #     # if score>=0.5: 
+    #     #     score_list.append(
+    #     #         (id2label[i], score)
+    #     #     )
             
             
-    score_list.sort(
-        key= lambda x: x[1], reverse=True
-    )
+    # score_list.sort(
+    #     key= lambda x: x[1], reverse=True
+    # )
             
-    return score_list[:5]
-    '''
+    # return str(score_list[:5])
+ 
     prob= individual_probabilities_scores[predicted_class_id]
-    label= id2label[predicted_class_id] if prob>=0.5 else "Other"
+    label= id2label[predicted_class_id] if prob>=0.8 else "Other"
     
-    return (label)
+    return label
 
 
 
 def get_top_labels_bulk(keywords: list):
-    category_dict= {}
-    for keyword in keywords:
-        category_dict[keyword]= get_top_labels(keyword)
+    # category_dict= {}
+    # for keyword in keywords:
+    #     category_dict[keyword]= get_top_labels(keyword)
         
-    return category_dict
+    # return category_dict
+    for i in range(len(keywords)):
+        keywords[i] = ' ' + get_top_labels(keywords[i])+' '+ keywords[i]
+    return keywords
+
+
+def get_top_labels_bulk_v2(keywords: list):
+    # category_dict= {}
+    # for keyword in keywords:
+    #     category_dict[keyword]= get_top_labels(keyword)
+        
+    # return category_dict
+    inputs = tokenizer(keywords, padding=True, return_tensors="pt")
+    with torch.no_grad():
+        logits = model(**inputs).logits # n logits --> for all keywords
+        
+        
+    for i in range(len(keywords)):
+        keywords[i] = keywords[i]+ ' '+ id2label[logits[i].argmax().item()]
+    return keywords
+        
     
     
