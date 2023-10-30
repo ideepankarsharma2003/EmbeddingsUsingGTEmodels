@@ -50,11 +50,14 @@ def generate_base_embeddings(text):
     #     text[i]= clean(text[i])
     #     print(text[i])
     # print()
-    embeddings= model_base.encode(text, convert_to_tensor=True)
+    # embeddings= model_base.encode(text, convert_to_tensor=True)
+    embeddings= model_base.encode(text, batch_size=2048,convert_to_numpy=True)
     
     
     # return util.cos_sim(embeddings[0], embeddings[1])
-    return embeddings.cpu().numpy()
+    print("created embeddings of shape: ", embeddings.shape, flush=True)
+    # return embeddings.cpu().numpy()
+    return embeddings
 
 
 

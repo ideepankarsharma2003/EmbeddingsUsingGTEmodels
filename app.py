@@ -115,17 +115,21 @@ async def bulk_base(text:dict):
 async def get_similarity_against(text:dict):
     try:
         main_entity = text.get("main_entity")
-        main_entity=get_top_labels(main_entity)+ ' '+ main_entity
-        print(f'main_entity: {main_entity}')
+        # main_entity=get_top_labels(main_entity)+ ' '+ main_entity
+        print(f'main_entity: {main_entity}', flush=True)
         
         compare_with_entitites = text.get("compare_with") # list of strings
         # compare_with_entitites= get_top_labels_bulk_v2(compare_with_entitites)
-        print(f'compare_with_entitites: {compare_with_entitites}')
+        print(f'len compare_with_entitites: {len(compare_with_entitites)}', flush=True)
         
         main_entity_embedding = generate_base_embeddings(main_entity)
+        print(f'Generated Main Entity Embeddings', flush=True)
         to_compare_entitites_embedding = generate_base_embeddings(compare_with_entitites)
+        print(f'Generated Compare Entity Embeddings', flush=True)
         
         similarity_score = generate_cosine_similarity(main_entity_embedding,to_compare_entitites_embedding,precision=2)
+        # similarity_score = generate_cosine_similarity(main_entity_embedding,to_compare_entitites_embedding,precision=-2)
+        print("len similarity_score: ", len(similarity_score[0]), flush=True)
         return {
             "similarity": similarity_score[0]
         }
