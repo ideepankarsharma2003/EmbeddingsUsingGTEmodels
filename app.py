@@ -6,7 +6,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import Response, JSONResponse
 from starlette.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
-from Utils.get_categories import get_top_labels, get_top_labels_bulk_v2
+# from Utils.get_categories import get_top_labels, get_top_labels_bulk_v2
+from Utils.get_keywords_utils import generate_keywords_around_seed
 
 from main import (
     generate_base_embeddings, 
@@ -25,6 +26,13 @@ class Keyword(BaseModel):
 
 class Keyword_bulk(BaseModel):
     keyword: list
+    
+    
+class Keywords_For_Seed(BaseModel):
+    seed_keyword: str
+    num_keywords: int = 50
+    num_urls: int = 10
+    top_n: int = 7
 
 
 
@@ -47,6 +55,26 @@ async def index():
 
 
  
+@app.post('/get_keywords_for_seedkeyword')
+async def get_keywords_for_seedkeyword(obj:Keywords_For_Seed):
+    
+    try: 
+        # text= str_2_list_of_str(text)
+        return generate_keywords_around_seed(
+            seed_keyword=obj.seed_keyword,
+            num_keywords=obj.num_keywords,
+            num_urls=obj.num_urls,
+            top_n=obj.top_n
+        )
+    except Exception as e:
+        return Response(f'Error occured: {e}')
+    
+    
+
+
+
+
+
 
 
 
@@ -69,7 +97,7 @@ async def base(text: dict):
         
         # print(f"n_urls: {len(text)}")
         
-        text= text+' '+ get_top_labels(text)
+        # text= text+' '+ get_top_labels(text)
         print(text)
         
         embeddings= generate_base_embeddings(text)
@@ -95,7 +123,7 @@ async def bulk_base(text:dict):
     try:
         text_list = text.get('text')
         
-        text_list= get_top_labels_bulk_v2(text_list)
+        # text_list= get_top_labels_bulk_v2(text_list)
 
         print(text)
         print(text_list)
@@ -236,6 +264,8 @@ async def large(text:dict):
         # return Response(f'Error occured: {e}')
 
 
+
+'''
 @app.get('/intent')
 async def large(text):
     
@@ -255,7 +285,7 @@ async def large(text):
         return Response(f'Error occured: {e}')
         # return Response(f'Error occured: {e}')
 
-
+'''
 
 # @app.post('/e5_large_v2')
 # async def model_e5_large_v2(text:dict):
@@ -277,7 +307,7 @@ async def large(text):
 #     except Exception as e:
 #         return Response(f'Error occured: {e}')
 
-
+'''
     
 @app.post('/get_category')
 async def get_category(text:Keyword):
@@ -286,7 +316,7 @@ async def get_category(text:Keyword):
         # text= str_2_list_of_str(text)
         text= text.keyword
         
-        category= get_top_labels(text)
+        # category= get_top_labels(text)
 
         # return (embeddings[0][0].item())
         # return category
@@ -314,7 +344,7 @@ async def get_category_bulk(text:Keyword_bulk):
         #                     category, media_type='application/json')
     except Exception as e:
         return Response(f'Error occured: {e}')
-
+'''
 
 
 if __name__=='__main__':

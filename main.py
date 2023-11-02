@@ -18,6 +18,7 @@ import time
 
 
 model_base = SentenceTransformer('thenlper/gte-base', device='cuda')
+# model_base = SentenceTransformer('hkunlp/instructor-large', device='cuda')
 model_bge_large= model_base
 model_large= model_base
 # model_large = SentenceTransformer('thenlper/gte-large', device='cuda')
