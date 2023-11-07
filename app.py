@@ -9,9 +9,11 @@ from fastapi.middleware.cors import CORSMiddleware
 # from Utils.get_categories import get_top_labels, get_top_labels_bulk_v2
 from Utils.get_keywords_utils import generate_keywords_around_seed
 from Utils.get_intent_bert_basedANN import get_intent_bulk_v2
+import time
 
 from main import (
     generate_base_embeddings, 
+    # generate_base_embeddings_v2, 
     generate_large_embeddings, 
     str_2_list_of_str, 
     generate_bge_large_embeddings,
@@ -31,6 +33,7 @@ class Keyword_bulk(BaseModel):
 class SimilarityAgainst(BaseModel):
     main_entity: str
     compare_with_entitites: list[str]
+    need_intent: bool = False
     
     
     
@@ -145,9 +148,50 @@ async def bulk_base(text:dict):
 
 # for getting the cosine similarity
 
+# @app.post('/get-similarity-against')
+# async def get_similarity_against(simag: SimilarityAgainst):
+#     try:
+#         main_entity = simag.main_entity
+#         # main_entity=get_top_labels(main_entity)+ ' '+ main_entity
+#         print(f'main_entity: {main_entity}', flush=True)
+        
+#         compare_with_entitites = simag.compare_with_entitites # list of strings
+#         # compare_with_entitites= get_top_labels_bulk_v2(compare_with_entitites)
+#         print(f'len compare_with_entitites: {len(compare_with_entitites)}', flush=True)
+        
+#         intent= []
+
+#         embeddings= generate_base_embeddings(
+#             [main_entity]+compare_with_entitites
+#         )
+#         for keywords in [main_entity]+compare_with_entitites
+#         intent= get_intent_bulk_v2(compare_with_entitites)
+#         print("len intent: ", len(intent), flush=True)
+        
+#         # similarity_score = generate_cosine_similarity(main_entity_embedding,to_compare_entitites_embedding,precision=2)
+#         similarity_score = generate_cosine_similarity(embeddings[0],embeddings[1:],precision=2)
+#         # similarity_score = generate_cosine_similarity(main_entity_embedding,to_compare_entitites_embedding,precision=-2)
+#         print("len similarity_score: ", len(similarity_score[0]), flush=True)
+#         return {
+#             "similarity": similarity_score[0],
+#             "intent": intent
+#         }
+    
+#     except Exception as e:
+#         return Response(f'Error occured: {e}')
+
+
+
+
+
+
+
+
 @app.post('/get-similarity-against')
 async def get_similarity_against(simag: SimilarityAgainst):
     try:
+        # print(f"start time: {time.time()}")
+        start_time = time.time()
         main_entity = simag.main_entity
         # main_entity=get_top_labels(main_entity)+ ' '+ main_entity
         print(f'main_entity: {main_entity}', flush=True)
@@ -156,21 +200,33 @@ async def get_similarity_against(simag: SimilarityAgainst):
         # compare_with_entitites= get_top_labels_bulk_v2(compare_with_entitites)
         print(f'len compare_with_entitites: {len(compare_with_entitites)}', flush=True)
         
-        # main_entity_embedding = generate_base_embeddings(main_entity)
-        # print(f'Generated Main Entity Embeddings', flush=True)
-        # to_compare_entitites_embedding = generate_base_embeddings(compare_with_entitites)
-        # print(f'Generated Compare Entity Embeddings', flush=True)
-        embeddings= generate_base_embeddings(
-            [main_entity]+compare_with_entitites
-        )
+        allkeywords= [main_entity]+compare_with_entitites
         
-        intent= get_intent_bulk_v2(compare_with_entitites)
-        print("len intent: ", len(intent), flush=True)
+        
+        
+        embeddings= generate_base_embeddings(allkeywords)
+        
+        print("--- %s seconds ---" % (time.time() - start_time))
+        
+        intent=[]
+        if not simag.need_intent:
+            for i in range(0, len(allkeywords), 10000):
+            
+                keywords= allkeywords[i:i+10000]
+                # print(keywords)
+                
+                intent+=get_intent_bulk_v2(keywords)
+                print(f"i= {i}, generated intents of shape: ", len(intent))
+                # embeddings+=generate_base_embeddings(keywords)
+                
+                
+            print("len intent: ", len(intent), flush=True)
         
         # similarity_score = generate_cosine_similarity(main_entity_embedding,to_compare_entitites_embedding,precision=2)
         similarity_score = generate_cosine_similarity(embeddings[0],embeddings[1:],precision=2)
         # similarity_score = generate_cosine_similarity(main_entity_embedding,to_compare_entitites_embedding,precision=-2)
         print("len similarity_score: ", len(similarity_score[0]), flush=True)
+        print("--- %s seconds ---" % (time.time() - start_time))
         return {
             "similarity": similarity_score[0],
             "intent": intent
@@ -178,6 +234,24 @@ async def get_similarity_against(simag: SimilarityAgainst):
     
     except Exception as e:
         return Response(f'Error occured: {e}')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
         """ 
         {

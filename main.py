@@ -10,6 +10,10 @@ from Utils.intent_embeddings import (
     intent_embeddings,
     reverse_intent
 )
+import torch.nn.functional as F
+from torch import Tensor
+from transformers import AutoTokenizer, AutoModel
+
 from Utils.client import generate_seo_metatitle
 
 import numpy as np
@@ -27,6 +31,13 @@ model_large= model_base
 
 # model_e5_large_v2.max_seq_length= 4096
 
+# tokenizer = AutoTokenizer.from_pretrained('thenlper/gte-base')
+# model = AutoModel.from_pretrained('thenlper/gte-base').to("cuda")
+
+def average_pool(last_hidden_states: Tensor,
+                 attention_mask: Tensor) -> Tensor:
+    last_hidden = last_hidden_states.masked_fill(~attention_mask[..., None].bool(), 0.0)
+    return last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
 
 def str_2_list_of_str(s):
     """
@@ -51,14 +62,37 @@ def generate_base_embeddings(text):
     #     text[i]= clean(text[i])
     #     print(text[i])
     # print()
-    # embeddings= model_base.encode(text, convert_to_tensor=True)
-    embeddings= model_base.encode(text, batch_size=2048,convert_to_numpy=True)
+    embeddings= model_base.encode(text, batch_size=32, convert_to_tensor=True)
+    # embeddings= model_base.encode(text, batch_size=12000,convert_to_numpy=True)
     
     
     # return util.cos_sim(embeddings[0], embeddings[1])
     print("created embeddings of shape: ", embeddings.shape, flush=True)
-    # return embeddings.cpu().numpy()
+    return embeddings.cpu().numpy()
     return embeddings
+
+
+# def generate_base_embeddings_v2(text): 
+#     """
+#     Generate embeddings for the given text using GTE-base.
+#     """
+#     # for i in range(len(text)):
+#     #     text[i]= clean(text[i])
+#     #     print(text[i])
+#     # print()
+#     # embeddings= model_base.encode(text, convert_to_tensor=True)
+#     batch_dict = tokenizer(text, max_length=512, padding=True, truncation=True, return_tensors='pt')
+
+#     # outputs = model(**batch_dict)
+#     outputs = model(**batch_dict.to("cuda"))
+    
+#     embeddings = average_pool(outputs.last_hidden_state, batch_dict['attention_mask']).cpu().detach().numpy()
+    
+    
+#     # return util.cos_sim(embeddings[0], embeddings[1])
+#     print("created embeddings of shape: ", embeddings.shape, flush=True)
+#     # return embeddings.cpu().numpy()
+#     return embeddings
 
 
 

@@ -29,7 +29,7 @@ label2id= {'Commercial': 0, 'Informational': 1, 'Navigational': 2, 'Transactiona
 
 # model_name= "/home/ubuntu/FineTunedDistilledBertAIChecker/intent_classification_model_with_metatitle_with_local2/checkpoint-2700"
 model_name= "/home/ubuntu/FineTunedDistilledBertAIChecker/intent_classification_model_without_metatitle_with_local23/checkpoint-355"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name,  use_fast=True)
 classifier = pipeline("text-classification", model=model_name)
 
 
@@ -57,7 +57,7 @@ def get_intent_bulk_v2(keyword_list:list):
     with torch.no_grad():
         logits = model(**inputs).logits
     intent= [id2label[int(torch.argmax(i).cpu().numpy())] for i in logits]
-    # torch.cuda.empty_cache()
+    torch.cuda.empty_cache()
     return intent
     
     
