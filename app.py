@@ -7,8 +7,8 @@ from fastapi.responses import Response, JSONResponse
 from starlette.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 # from Utils.get_categories import get_top_labels, get_top_labels_bulk_v2
-from Utils.get_keywords_utils import generate_keywords_around_seed
-from Utils.get_intent_bert_basedANN import get_intent_bulk_v2
+# from Utils.get_keywords_utils import generate_keywords_around_seed
+# from Utils.get_intent_bert_basedANN import get_intent_bulk_v2
 import time
 
 from main import (
@@ -64,19 +64,19 @@ async def index():
 
 
  
-@app.post('/get_keywords_for_seedkeyword')
-async def get_keywords_for_seedkeyword(obj:Keywords_For_Seed):
+# @app.post('/get_keywords_for_seedkeyword')
+# async def get_keywords_for_seedkeyword(obj:Keywords_For_Seed):
     
-    try: 
-        # text= str_2_list_of_str(text)
-        return generate_keywords_around_seed(
-            seed_keyword=obj.seed_keyword,
-            num_keywords=obj.num_keywords,
-            num_urls=obj.num_urls,
-            top_n=obj.top_n
-        )
-    except Exception as e:
-        return Response(f'Error occured: {e}')
+#     try: 
+#         # text= str_2_list_of_str(text)
+#         return generate_keywords_around_seed(
+#             seed_keyword=obj.seed_keyword,
+#             num_keywords=obj.num_keywords,
+#             num_urls=obj.num_urls,
+#             top_n=obj.top_n
+#         )
+#     except Exception as e:
+#         return Response(f'Error occured: {e}')
     
     
 
@@ -209,13 +209,13 @@ async def get_similarity_against(simag: SimilarityAgainst):
         print("--- %s seconds ---" % (time.time() - start_time))
         
         intent=[]
-        if not simag.need_intent:
+        if  simag.need_intent:
             for i in range(0, len(allkeywords), 10000):
             
                 keywords= allkeywords[i:i+10000]
                 # print(keywords)
                 
-                intent+=get_intent_bulk_v2(keywords)
+                # intent+=get_intent_bulk_v2(keywords)
                 print(f"i= {i}, generated intents of shape: ", len(intent))
                 # embeddings+=generate_base_embeddings(keywords)
                 
@@ -307,7 +307,7 @@ async def get_similarity_against(text:dict):
 #         return Response(f'Error occured: {e}')
 
 
-
+'''
 @app.post('/large')
 async def large(text:dict):
     
@@ -351,7 +351,7 @@ async def large(text:dict):
         return Response(f'Error occured: {e}')
         # return Response(f'Error occured: {e}')
 
-
+'''
 
 '''
 @app.get('/intent')
