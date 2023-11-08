@@ -1,7 +1,7 @@
 #! /bin/bash
 
 NAME=embeddings-fastapi
-DIR=/home/ubuntu/EmbeddingsUsingGTEmodels
+DIR=/home/ubuntu/GTE_BGE_Embeddings
 USER=ubuntu
 GROUP=ubuntu
 WORKERS=2

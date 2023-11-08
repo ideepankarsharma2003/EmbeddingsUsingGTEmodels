@@ -111,3 +111,4 @@ wasabi==1.1.2
 wcwidth==0.2.6
 transformers
 numpy
+gunicorn
