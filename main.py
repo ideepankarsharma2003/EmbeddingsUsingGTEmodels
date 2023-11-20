@@ -24,6 +24,7 @@ from keybert import KeyBERT
 
 
 # model_base = SentenceTransformer('thenlper/gte-base', device='cuda')
+# model_base = SentenceTransformer('TaylorAI/gte-tiny', device='cuda')
 model_base = SentenceTransformer('thenlper/gte-small', device='cuda')
 kw_model = KeyBERT(model_base)
 
@@ -329,14 +330,14 @@ def generate_keywords_Ngram(
 ):
     
     
-    metatitle= ' \n'.join(keywords_in)
+    metatitle= ' '+ ' \n'.join(keywords_in)+ ' '
     keywords_list= []
     for i in range(1, top_n):
         keywords = kw_model.extract_keywords(metatitle, 
 
                                      keyphrase_ngram_range=(1, i), 
 
-                                     stop_words='english', 
+                                    #  stop_words='english', 
 
                                      highlight=False,
                                      
@@ -344,9 +345,9 @@ def generate_keywords_Ngram(
                                      
                                     #  diversity=0.7,
 
-                                     top_n=num_keywords,
+                                     top_n=30,
                                      
-                                     nr_candidates=3*num_keywords
+                                     nr_candidates=40
                                      )
 
         keywords_list+= keywords
