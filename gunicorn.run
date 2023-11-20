@@ -4,7 +4,8 @@ NAME=embeddings-fastapi
 DIR=/home/ubuntu/GTE_BGE_Embeddings
 USER=ubuntu
 GROUP=ubuntu
-WORKERS=2
+# WORKERS=2
+WORKERS=1
 WORKER_CLASS=uvicorn.workers.UvicornWorker
 VENV=$DIR/venv/bin/activate
 BIND=0.0.0.0:8080
@@ -20,4 +21,5 @@ exec gunicorn app:app \
 	--user=$USER \
 	--group=$GROUP \
 	--bind=$BIND \
+	--timeout 12000000 \
 	--log-file=-

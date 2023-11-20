@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # from Utils.get_keywords_utils import generate_keywords_around_seed
 # from Utils.get_intent_bert_basedANN import get_intent_bulk_v2
 import time
+import datetime
 
 from main import (
     generate_base_embeddings, 
@@ -19,7 +20,8 @@ from main import (
     generate_bge_large_embeddings,
     # generate_e5_large_v2_embeddings,
     generate_intent    ,
-    generate_cosine_similarity
+    generate_cosine_similarity,
+    generate_keywords_Ngram
     )
 import json
 from pydantic import BaseModel
@@ -34,6 +36,14 @@ class SimilarityAgainst(BaseModel):
     main_entity: str
     compare_with_entitites: list[str]
     need_intent: bool = False
+
+class SimilarityAgainst_with_NGrams(BaseModel):
+    main_entity: str
+    compare_with_entitites: list[str]
+    need_intent: bool = False
+    # keywords: list[str]= [""]
+    num_keywords: int= 50
+    top_n: int= 4
     
     
     
@@ -79,6 +89,68 @@ async def index():
 #         return Response(f'Error occured: {e}')
     
     
+
+
+@app.post('/get-similarity-against_with_ngrams')
+async def get_similarity_against_with_ngrams(simag: SimilarityAgainst_with_NGrams):
+    try:
+        print(f"start time [ GET SIMILARITY AGAINST WITH NGRAMS]: {datetime.datetime.now()}")
+        start_time = time.time()
+        main_entity = simag.main_entity
+        ngrams= generate_keywords_Ngram(
+            simag.compare_with_entitites,
+            num_keywords=simag.num_keywords,
+            top_n= simag.top_n,
+            start_time=start_time
+        )
+        print("--- %2.6s seconds [GENERATED NGRAMS]---\n" % (time.time() - start_time))
+        
+        # main_entity=get_top_labels(main_entity)+ ' '+ main_entity
+        print(f'main_entity: {main_entity}', flush=True)
+        
+        compare_with_entitites = simag.compare_with_entitites # list of strings
+        # compare_with_entitites= get_top_labels_bulk_v2(compare_with_entitites)
+        print(f'len compare_with_entitites: {len(compare_with_entitites)}', flush=True)
+        
+        allkeywords= [main_entity]+compare_with_entitites
+        
+        
+        
+        embeddings= generate_base_embeddings(allkeywords)
+        
+        print("--- %2.6s seconds [GENERATED EMBEDDINGS]---" % (time.time() - start_time))
+        
+        intent=[]
+        if  simag.need_intent:
+            for i in range(0, len(allkeywords), 10000):
+            
+                keywords= allkeywords[i:i+10000]
+                # print(keywords)
+                
+                # intent+=get_intent_bulk_v2(keywords)
+                print(f"i= {i}, generated intents of shape: ", len(intent))
+                # embeddings+=generate_base_embeddings(keywords)
+                
+                
+            print("len intent: ", len(intent), flush=True)
+        
+        # similarity_score = generate_cosine_similarity(main_entity_embedding,to_compare_entitites_embedding,precision=2)
+        similarity_score = generate_cosine_similarity(embeddings[0],embeddings[1:],precision=2)
+        # similarity_score = generate_cosine_similarity(main_entity_embedding,to_compare_entitites_embedding,precision=-2)
+        print("len similarity_score: ", len(similarity_score[0]), flush=True)
+        print("--- %2.6s seconds [GENERATED SIMILARITY SCORE] ---\n\n" % (time.time() - start_time))
+        return {
+            "similarity": similarity_score[0],
+            "intent": intent,
+            "ngrams": ngrams
+        }
+    
+    except Exception as e:
+        return Response(f'Error occured: {e}')
+
+
+
+
 
 
 
