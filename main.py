@@ -20,7 +20,12 @@ import numpy as np
 from summa import summarizer
 import time
 from keybert import KeyBERT
+from keys import  *
+import os
+os.environ['GOOGLE_APPLICATION_CREDENTIALS']= gcp_credentials
 
+from langchain.embeddings import VertexAIEmbeddings
+vertex_ai_embeddings = VertexAIEmbeddings()
 
 
 # model_base = SentenceTransformer('thenlper/gte-base', device='cuda')
@@ -58,6 +63,14 @@ def str_2_list_of_str(s):
     s= s.replace("'", '')
     list_of_strings= s.split(',')
     return list_of_strings
+
+
+
+def generate_palm_embeddings(text: list):
+    return vertex_ai_embeddings.embed_documents(text)
+
+
+
 
 
 def generate_base_embeddings(text): 

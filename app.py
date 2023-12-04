@@ -14,6 +14,7 @@ import datetime
 
 from main import (
     generate_base_embeddings, 
+    generate_palm_embeddings,
     # generate_base_embeddings_v2, 
     generate_large_embeddings, 
     str_2_list_of_str, 
@@ -73,7 +74,6 @@ async def index():
     return RedirectResponse(url='/docs')
     # return "Hello world!"
 
-
  
 # @app.post('/get_keywords_for_seedkeyword')
 # async def get_keywords_for_seedkeyword(obj:Keywords_For_Seed):
@@ -122,7 +122,12 @@ async def get_similarity_against_with_ngrams(simag: SimilarityAgainst_with_NGram
         
         
         allkeywords= [main_entity]+compare_with_entitites
+        print("--- %2.6s seconds [TRYING TO GENERATE EMBEDDINGS]---" % (time.time() - start_time))
         embeddings= generate_base_embeddings(allkeywords)
+        # embeddings= []
+        # for i in range(0, len(allkeywords), 420):
+            
+        #     embeddings+= generate_palm_embeddings(allkeywords[i:i+420])
         
         print("--- %2.6s seconds [GENERATED EMBEDDINGS]---" % (time.time() - start_time))
         
@@ -152,6 +157,7 @@ async def get_similarity_against_with_ngrams(simag: SimilarityAgainst_with_NGram
         }
     
     except Exception as e:
+        print(e)
         return Response(f'Error occured: {e}')
 
 
