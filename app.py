@@ -41,6 +41,7 @@ class SimilarityAgainst_with_NGrams(BaseModel):
     main_entity: str
     compare_with_entitites: list[str]
     need_intent: bool = False
+    need_ngrams: bool = True
     # keywords: list[str]= [""]
     num_keywords: int= 50
     top_n: int= 4
@@ -65,7 +66,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-print("initializing app")
+print("initializing app\n")
 
 @app.get('/', tags=['authentication'])
 async def index():
@@ -97,14 +98,7 @@ async def get_similarity_against_with_ngrams(simag: SimilarityAgainst_with_NGram
         print(f"start time [ GET SIMILARITY AGAINST WITH NGRAMS]: {datetime.datetime.now()}")
         start_time = time.time()
         main_entity = simag.main_entity
-        ngrams= generate_keywords_Ngram(
-            simag.compare_with_entitites,
-            num_keywords=simag.num_keywords,
-            top_n= simag.top_n,
-            start_time=start_time
-        )
-        print("--- %2.6s seconds [GENERATED NGRAMS]---\n" % (time.time() - start_time))
-        
+        ngrams= []
         # main_entity=get_top_labels(main_entity)+ ' '+ main_entity
         print(f'main_entity: {main_entity}', flush=True)
         
@@ -112,10 +106,22 @@ async def get_similarity_against_with_ngrams(simag: SimilarityAgainst_with_NGram
         # compare_with_entitites= get_top_labels_bulk_v2(compare_with_entitites)
         print(f'len compare_with_entitites: {len(compare_with_entitites)}', flush=True)
         
+        # simag.need_ngrams= False
+        
+        print(f"need n-grams: '{simag.need_ngrams}'", flush=True)
+        if simag.need_ngrams:
+            ngrams= generate_keywords_Ngram(
+                simag.compare_with_entitites,
+                num_keywords=simag.num_keywords,
+                top_n= simag.top_n,
+                start_time=start_time
+            )
+            print("--- %2.6s seconds [GENERATED NGRAMS]---" % (time.time() - start_time))
+            
+        
+        
+        
         allkeywords= [main_entity]+compare_with_entitites
-        
-        
-        
         embeddings= generate_base_embeddings(allkeywords)
         
         print("--- %2.6s seconds [GENERATED EMBEDDINGS]---" % (time.time() - start_time))

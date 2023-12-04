@@ -324,8 +324,8 @@ def generate_intent_v2(keyword):
 
 def generate_keywords_Ngram(
     keywords_in: list[str],
-    num_keywords: int,
-    top_n: int,
+    num_keywords: int=50,
+    top_n: int=4,
     start_time=time.time()
 ):
     
@@ -345,9 +345,11 @@ def generate_keywords_Ngram(
                                      
                                     #  diversity=0.7,
 
-                                     top_n=30,
+                                    #  top_n=30,
                                      
-                                     nr_candidates=40
+                                    #  nr_candidates=40
+                                     top_n=num_keywords,                                     
+                                     nr_candidates=num_keywords*3
                                      )
 
         keywords_list+= keywords
@@ -361,8 +363,19 @@ def generate_keywords_Ngram(
     max_count= 1
     for i in range(len(keywords_list)):
         temp= list(keywords_list[i])
-        mc_i= metatitle.count(
-                ' '+ temp[0]+' ')
+        
+        mc_i= 0
+        keyword_i= temp[0]
+        if len(keyword_i.split(' '))>1:
+            mc_i= metatitle.count(keyword_i)
+        else:
+            
+            mc_i= metatitle.count(
+                    ' '+ keyword_i+' ')
+            mc_i+= metatitle.count(keyword_i+'\n')
+        
+        # mc_i+= keywords_in.count(temp[0])
+        
         temp.append(
             mc_i
         )

@@ -112,3 +112,4 @@ wcwidth==0.2.6
 transformers
 numpy
 gunicorn
+google-generativeai
