@@ -28,9 +28,9 @@ from langchain.embeddings import VertexAIEmbeddings
 vertex_ai_embeddings = VertexAIEmbeddings()
 
 
-# model_base = SentenceTransformer('thenlper/gte-base', device='cuda')
+model_base = SentenceTransformer('thenlper/gte-base', device='cuda')
 # model_base = SentenceTransformer('TaylorAI/gte-tiny', device='cuda')
-model_base = SentenceTransformer('thenlper/gte-small', device='cuda')
+# model_base = SentenceTransformer('thenlper/gte-small', device='cuda')
 kw_model = KeyBERT(model_base)
 
 # model_base = SentenceTransformer('hkunlp/instructor-large', device='cuda')
